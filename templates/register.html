@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация/Волк с Уолл-стрит</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Цвет текста в полях ввода */
+        
+        .form-control {
+            color: #000 !important;
+            /* !important используется для переопределения возможных других стилей */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="register-container">
+        <h1>Регистрация</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+        <form method="POST">
+            {{ form.csrf_token }}
+            <label for="email">Email:</label> {{ form.email(class="form-control", placeholder="Enter your email", required="required") }}
+            <label for="password">Пароль:</label> {{ form.password(class="form-control", placeholder="Enter your password", required="required") }}
+            <label for="confirm_password">Подтвердить пароль:</label> {{ form.confirm_password(class="form-control", placeholder="Confirm your password", required="required") }} {{ form.submit(class="btn btn-primary") }}
+        </form>
+        <p>Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти здесь</a>.</p>
+    </div>
+</body>
+
+</html>

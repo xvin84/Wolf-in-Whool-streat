@@ -1,0 +1,101 @@
+/* static/styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #232323;
+    /* тёмно-серый фон */
+    color: #ffffff;
+    /* белый текст */
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #3498db;
+    font-size: 3vw;
+    /* голубовато-синий */
+}
+
+#form-container {
+    background-color: #2c3e50;
+    /* тёмный голубовато-серый фон */
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form label {
+    margin: 10px 0;
+}
+
+
+/* Уменьшаем ширину полей ввода */
+
+form select,
+form input,
+form textarea {
+    width: 65%;
+    padding: 8px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    border: 1px solid #34495e;
+    /* тёмный голубовато-серый */
+    border-radius: 5px;
+    background-color: #2980b9;
+    /* светло-голубовато-серый фон */
+    color: #c9eaff;
+    /* тёмный голубовато-серый текст */
+}
+
+form button {
+    background-color: #1885cd;
+    color: #c9eaff;
+    padding: 12px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #1885cd;
+    /* тёмный голубовато-серый */
+}
+
+.logout-button {
+    background-color: #e74c3c;
+    color: #ffffff;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
+}
+
+.form-control {
+    color: #c9eaff !important;
+    /* !important используется для переопределения возможных других стилей */
+}
+
+
+/* Добавлен новый класс custom-input */
+
+.custom-input {
+    color: #c9eaff !important;
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Войти/Регистрация</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div id="login-container">
+        <h1>Войти</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+        <form method="POST">
+            {{ form.csrf_token }}
+            <label for="email">Email:</label> {{ form.email(class="form-control custom-input", placeholder="Enter your email", required="required") }}
+            <label for="password">Пароль:</label> {{ form.password(class="form-control custom-input", placeholder="Enter your password", required="required") }} {{ form.submit(class="btn btn-primary") }}
+        </form>
+        <p>Ещё нету аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться здесь</a>.</p>
+    </div>
+</body>
+
+</html>

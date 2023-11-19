@@ -1,0 +1,185 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Tracker</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+    <div id="logout-container" style="position: absolute; top: 10px; left: 10px;">
+        <form method="GET" action="{{ url_for('logout') }}">
+            <button type="submit" class="logout-button">Выйти</button>
+        </form>
+        {% set email_parts = current_user.email.split('@') %}
+        <p style="display: inline-block; margin-left: 10px; color: #ffffff;">{{ email_parts[0][:4] + '...' + '@' + email_parts[1] }}</p>
+    </div>
+    <h1>Учет расходов и доходов</h1>
+
+    <div id="form-container">
+        <h2>Текущий баланс: ₽{{ '{:,.0f}'.format(current_balance.amount) if current_balance and current_balance.amount is defined else '0' }}</h2>
+
+        <form method="POST" action="{{ url_for('index') }}">
+            <label for="add_amount">Сумма:</label>
+            <input type="number" name="add_amount" required>
+
+            <label for="add_category">Категория:</label>
+            <input type="text" name="add_category" placeholder="Введите категорию">
+
+            <label for="type">Тип (доход/расход):</label>
+            <select name="add_type" required>
+                <option value="income">Доход</option>
+                <option value="expense">Расход</option>
+            </select>
+
+            <!-- Скрытые поля для даты и времени -->
+            <input type="hidden" name="date" id="date">
+            <input type="hidden" name="time" id="time">
+
+            <button type="submit">Добавить транзакцию</button>
+        </form>
+    </div>
+
+    <style>
+        #history-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            margin-top: 20px;
+        }
+        
+        .toggle-button {
+            background-color: #1885cd;
+            color: #ffffff;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease-in-out;
+        }
+        
+        .toggle-button:hover {
+            background-color: #2980b9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #2c3e50;
+            color: #ffffff;
+        }
+        
+        th,
+        td {
+            border: 1px solid #34495e;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #2980b9;
+            color: #ffffff;
+        }
+    </style>
+
+    <button onclick="toggleHistory()" class="toggle-button">Показать историю</button>
+
+    <div id="history-container">
+        <h2>История транзакций</h2>
+        <form method="post" action="{{ url_for('sort') }}" class="form-inline mt-2 mt-md-0" novalidate style="display: flex; align-items: center;">
+            <select class="form-control mr-sm-2" name="sort_by">
+                <option value="date">По дате</option>
+                <option value="amount">По сумме</option>
+                <option value="category">По категории</option>
+                <option value="type">По типу</option>
+            </select>
+            <select class="form-control mr-sm-2" name="sort_order">
+                <option value="asc">По возрастанию</option>
+                <option value="desc">По убыванию</option>
+            </select>
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Сортировать</button>
+        </form>
+        <form method="post" action="{{ url_for('search') }}" class="form-inline mt-2 mt-md-0" novalidate style="margin-left: 10px;">
+            <select class="form-control mr-sm-2" name="search_category">
+                <option value="">Все категории</option>
+                {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+            <input class="form-control mr-sm-2" type="text" placeholder="Сумма" aria-label="Amount" name="search_amount">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Искать</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Сумма</th>
+                    <th>Категория</th>
+                    <th>Тип</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>₽{{ '{:,.0f}'.format(transaction.amount) }}</td>
+                    <td>{{ transaction.category or 'Без категории' }}</td>
+                    <td>{{ transaction.transaction_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <form method="POST" action="{{ url_for('clear_history') }}">
+            <button type="submit" class="clear-button">Очистить историю</button>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var categoryInput = document.querySelector('select[name="add_category"]');
+            var transactionTypeToggle = document.querySelector('select[name="add_type"]');
+            var historyContainer = document.getElementById('history-container');
+            var toggleButton = document.querySelector('.toggle-button');
+            var isHistoryOpen = localStorage.getItem('isHistoryOpen') === 'true';
+
+            if (isHistoryOpen) {
+                historyContainer.style.maxHeight = historyContainer.scrollHeight + 'px';
+                toggleButton.textContent = 'Скрыть историю';
+            }
+
+            toggleButton.addEventListener('click', function() {
+                if (historyContainer.style.maxHeight) {
+                    historyContainer.style.maxHeight = null;
+                    toggleButton.textContent = 'Показать историю';
+                    localStorage.setItem('isHistoryOpen', 'false');
+                } else {
+                    historyContainer.style.maxHeight = historyContainer.scrollHeight + 'px';
+                    toggleButton.textContent = 'Скрыть историю';
+                    localStorage.setItem('isHistoryOpen', 'true');
+                }
+            });
+
+            // Обработчик изменения значения в поле категории
+            categoryInput.addEventListener('change', function() {
+                // При изменении значения в поле категории, снимаем выбор с опции "Выберите категорию или введите новую"
+                categoryInput.querySelector('option[value=""]').removeAttribute('selected');
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
